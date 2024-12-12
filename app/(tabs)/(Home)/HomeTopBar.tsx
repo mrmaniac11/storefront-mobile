@@ -55,18 +55,18 @@ const HomeTopbar: React.FC<HomeMainProps> = ({ header, creator_id, backButtonFun
         <Text style={styles.headerText}>{header}</Text>
       </View>
       <View style={styles.headerIconsContainer}>
-        <View style={{ marginEnd : 10 }}>
-          <MaterialCommunityIcons 
-              name="bell" 
-              size={22} 
-              onPress={() => navigateToNotifiation(creator_id)}
-            />
-        </View>
-          <MaterialCommunityIcons 
-            name="plus" 
-            size={26}
-            onPress={() => navigateToAddProductsList(creator_id)}
-          />        
+        <MaterialCommunityIcons 
+          name="cart-plus" 
+          size={24}
+          style={{alignSelf: 'center', marginRight: 15}}
+          onPress={() => navigateToAddProductsList(creator_id)}
+        />        
+        <MaterialCommunityIcons 
+            name="notification-clear-all" 
+            size={24}
+            style={{alignSelf: 'center'}}
+            onPress={() => navigateToNotifiation(creator_id)}
+          />
       </View>
     </View>
   );
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 10,
     marginBottom: 15,
-    paddingLeft: 10,
+    paddingLeft: 20,
     paddingRight: 10,
     height: 60
   },

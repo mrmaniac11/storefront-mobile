@@ -84,6 +84,7 @@ function TabSection({ route }: NativeStackScreenProps<RootStackParamList, '(tabs
           tabBarInactiveTintColor: 'black',
           tabBarStyle: {
             backgroundColor: 'white',
+            height: '6%',
           },
         }}
       >

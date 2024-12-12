@@ -1,6 +1,8 @@
 import React from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
+import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+
+const screenHeight = Dimensions.get('window').height;
 
 const ListLoading = () => {
   const n = 30; // Number of loading cards
@@ -27,18 +29,29 @@ const ListLoading = () => {
   );
 };
 
+let cardHeight = screenHeight * 0.3
+if (screenHeight > 800) {
+  cardHeight = screenHeight * 0.27
+}
+
 const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 10,
     marginTop: 10
   },
   loadingCard: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'flex-end',
     width: '47%',
-    height: 250,
+    height: cardHeight,
     borderRadius: 10,
     margin: 5,
-    backgroundColor: 'gray', // Backup base color for card
+    backgroundColor: '#ccc',
+    borderColor: 'lightgrey',
+    borderWidth: 0.05,
     overflow: 'hidden',
+    marginVertical: 10,
   },
   shimmer: {
     width: '100%',

@@ -53,7 +53,7 @@ function Profile() {
   return (
     <View style={{display: 'flex', flex: 1, justifyContent: 'space-between'}}>
       <View>
-        <View style={{height: '18%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginVertical: 10 }}>
+        <View style={{height: '18%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 30 }}>
           <View style={{height: 100, width: 100, backgroundColor: 'lightgrey', borderRadius: 50, marginVertical: 10}}>
             {/* For Image */}
           </View>
@@ -63,10 +63,10 @@ function Profile() {
         </View>
 
         <View style={styles.inputContainer}>
-          <View style={styles.inputLabelContainer}>
+          {/* <View style={styles.inputLabelContainer}>
             <Text style={styles.inputLabel}>Name</Text>
           </View>
-          
+           */}
           <TextInput
             style={styles.input}
             value={formData.name}
@@ -76,67 +76,67 @@ function Profile() {
           />
         </View>
         <View style={styles.inputContainer}>
-          <View style={styles.inputLabelContainer}>
-              <Text style={styles.inputLabel}>Username</Text>
-            </View>
+          {/* <View style={styles.inputLabelContainer}>
+            <Text style={styles.inputLabel}>Username</Text>
+          </View> */}
             
-            <TextInput
-              style={styles.input}
-              value={formData.userName}
-              onChangeText={(value) => handleInputChange('userName', value)}
-              placeholder="Enter user name"
-              placeholderTextColor="#999"
-            />
+          <TextInput
+            style={styles.input}
+            value={formData.userName}
+            onChangeText={(value) => handleInputChange('userName', value)}
+            placeholder="Enter user name"
+            placeholderTextColor="#999"
+          />
         </View>
         <View style={styles.inputContainer}>
-          <View style={styles.inputLabelContainer}>
-              <Text style={styles.inputLabel}>Pronouns</Text>
-            </View>
+          {/* <View style={styles.inputLabelContainer}>
+            <Text style={styles.inputLabel}>Pronouns</Text>
+          </View> */}
             
-            <TextInput
-              style={styles.input}
-              value={formData.pronounce}
-              onChangeText={(value) => handleInputChange('pronounce', value)}
-              placeholder="Pronounce"
-              placeholderTextColor="#999"
-            />
+          <TextInput
+            style={styles.input}
+            value={formData.pronounce}
+            onChangeText={(value) => handleInputChange('pronounce', value)}
+            placeholder="Pronounce"
+            placeholderTextColor="#999"
+          />
         </View>
         <View style={styles.inputContainer}>
-            <View style={styles.inputLabelContainer}>
-              <Text style={styles.inputLabel}>Bio</Text>
-            </View>
-            
-            <TextInput
-              style={styles.input}
-              value={formData.bio}
-              onChangeText={(value) => handleInputChange('bio', value)}
-              placeholder="Bio"
-              placeholderTextColor="#999"
-            />
+          {/* <View style={styles.inputLabelContainer}>
+            <Text style={styles.inputLabel}>Bio</Text>
+          </View> */}
+          
+          <TextInput
+            style={styles.input}
+            value={formData.bio}
+            onChangeText={(value) => handleInputChange('bio', value)}
+            placeholder="Bio"
+            placeholderTextColor="#999"
+          />
         </View>
 
-        <View style={styles.inputContainer}>
-            <View style={styles.inputLabelContainer}>
-              <Text style={styles.inputLabel}>Gender</Text>
-            </View>
-            <View style={{width: '75%'}}>
-              <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                data={genderContent}
-                search={false}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder='Select Gender'
-                searchPlaceholder="Search..."
-                value={formData.gender}
-                onChange={item => {
-                  handleInputChange('gender', item.value);
-                }}
-              /> 
-            </View>
+        <View style={[styles.inputContainer, { marginTop: 10}]}>
+          {/* <View style={styles.inputLabelContainer}>
+            <Text style={styles.inputLabel}>Gender</Text>
+          </View> */}
+          <View style={{width: '95%'}}>
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              data={genderContent}
+              search={false}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder='Select Gender'
+              searchPlaceholder="Search..."
+              value={formData.gender}
+              onChange={item => {
+                handleInputChange('gender', item.value);
+              }}
+            /> 
+          </View>
         </View>
         <View style={{marginTop: 20}}>
           <Divider/>
@@ -147,9 +147,9 @@ function Profile() {
           </View>
         </View>
       </View>
-      <View style={{display: 'flex', flexDirection: 'row',paddingVertical: 7, marginTop: 10, marginHorizontal: 5}}>
-          <Button style={{color: 'white', backgroundColor: '#34AE57', width: '100%', marginLeft: 5, borderRadius: 10, paddingTop: 10, paddingBottom: 10}} onClick={saveUserPreferenceAction}>
-            Save
+      <View style={{display: 'flex', flexDirection: 'row', paddingVertical: 10, marginHorizontal: 5}}>
+          <Button style={{backgroundColor: '#34AE57', width: '100%', marginLeft: 5, borderRadius: 10, paddingTop: 12, paddingBottom: 12}} onClick={saveUserPreferenceAction}>
+            <Text style={{color: 'white'}}>Save</Text>
           </Button>
       </View>
     </View>
@@ -169,21 +169,26 @@ const styles = StyleSheet.create({
   inputContainer: {
     display: 'flex',
     flexDirection: 'row',
-    margin: 20,
+    marginHorizontal: 10,
+    marginLeft: 30,
+    marginVertical: 15,
   },
   inputLabelContainer: {
     alignSelf: 'center', 
     marginRight: 20,
-    width: '20%'
+    width: '25%'
   },
   inputLabel: {
-    fontSize: 16
+    fontSize: 16,
+    fontWeight: 600,
+    color: 'rgb(50, 50, 50)',
   },
   input: {
-    width: '80%',
+    width: '95%',
     borderBottomWidth: 1,
-    borderBottomColor: '#000',
+    borderBottomColor: 'lightgray',
     paddingVertical: 5,
+    paddingHorizontal: 5,
     fontSize: 16,
   },
 
@@ -191,7 +196,9 @@ const styles = StyleSheet.create({
   // dropdown classes
   dropdown: {
     height: 40,
-    borderBottomWidth: 0.5,
+    borderColor: 'lightgray',
+    borderBottomWidth: 1,
+    paddingHorizontal: 5,
   },
   icon: {
     marginRight: 5,
@@ -215,14 +222,5 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 16,
   },
-
-
-  // COMMON CLASSES - profile and addCollectionProducts.tsx
-  saveCollectionButtonText: {
-    fontSize: 16,
-    color: 'black',
-    textAlign: 'center',
-  },
 });
-
 export default Profile;

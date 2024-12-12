@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Pressable, Image, Animated, Easing, Dimensions } from 'react-native';
+import React, { useState, useRef, Children } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Pressable, Image, Animated, Easing, Dimensions, PanResponder } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface CollectionAddProductsContainerProps {
   setCollectionName: React.Dispatch<React.SetStateAction<string>>; // Type for the setState function
@@ -44,10 +46,30 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
   };
 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const fadeAnim = useRef(new Animated.Value(screenHeight)).current;
+  const [modalVisibleContent, setModalVisibleContent] = useState<'image-modal' | 'info-modal'|''>('');
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        setModalVisible(false);
+        setModalVisibleContent('');
+      };
+    }, [])
+  );
+
   const openImageModal = () => {
+    setModalVisibleContent('image-modal');
+    openModal();
+  }
+
+  const openCollectionInfoModal = () => {    
+    setModalVisibleContent('info-modal');
+    openModal();
+  }
+
+  const openModal = () => {
     setModalVisible(true);
     Animated.parallel([
       Animated.timing(slideAnim, {
@@ -63,7 +85,7 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
       }),
     ]).start();
   };
-  const closeImageModal = () => {
+  const closeModal = () => {
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: screenHeight,
@@ -77,36 +99,53 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
       }),
     ]).start(() => {
       setModalVisible(false);
+      setModalVisibleContent('');
     });
   };
+
+  let errors = [];
+  const validate = () => {
+    if (collectionName === '') {
+      errors.push('collection_name');
+    }
+  }
 
   const removeCollectionImage = () => {
     setSelectedImage(null);
   }
+
+  const navigateToCollectionProductAdditionPage = () => {
+    setCurrentPage('collection_addition_page')
+  }
   return (
     <View style={{flex: 1, justifyContent: 'space-between'}}>
       <View style={{marginHorizontal: 20}}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.header}>Create product collection</Text>
-          <MaterialCommunityIcons style={styles.infoIcon} name='information-outline' size={22} />
-        </View>
-
-        <View style={styles.subHeaderContainer}>
-          <Text style={styles.subHeaderText}>Adding multiple product links that you wish to share.</Text>
+        <View style={{marginBottom: 20}}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.header}>Create product collection</Text>
+            <TouchableOpacity onPress={openCollectionInfoModal}>
+              <MaterialCommunityIcons name='information-outline' size={22} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.subHeaderContainer}>
+            <Text style={styles.subHeaderText}>Adding multiple product links that you wish to share.</Text>
+          </View>
         </View>
 
         {/* Collection Name Section */}
         <View style={styles.collectionNameSection}>
-          <Text style={styles.sectionTitle}>Name your Collection</Text>
-          <SafeAreaView>
-            <TextInput
-              style={styles.input}
-              onChangeText={setCollectionName}
-              value={collectionName}
-              placeholder="Collection name"
-              keyboardType="default"
-            />
-          </SafeAreaView>
+          <View style={{marginBottom: 10}}>
+            <Text style={styles.sectionTitle}>Name your Collection</Text>
+            <SafeAreaView>
+              <TextInput
+                style={styles.input}
+                onChangeText={setCollectionName}
+                value={collectionName}
+                placeholder="Collection name"
+                keyboardType="default"
+              />
+            </SafeAreaView>
+          </View>
           <Pressable style={styles.attachImageBtn} onPress={() => selectedImage ? openImageModal() : openImagePicker()}>
             <View style={styles.imageSection}>
               <Text style={styles.imageText}>{selectedImage ? "Preview Image" : "Attach Image"}</Text>
@@ -116,72 +155,139 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
         </View>
       </View>
       <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, marginHorizontal: 10}}>
-        <TouchableOpacity style={styles.fulllLengthBlackBorderButton} onPress={() => {setCurrentPage('collection_addition_page')}}>
+        <TouchableOpacity style={styles.fulllLengthBlackBorderButton} onPress={navigateToCollectionProductAdditionPage}>
           <Text style={styles.saveCollectionButtonText}>Next</Text>
         </TouchableOpacity>
       </View>
-      {modalVisible && (
-        <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
-          <TouchableOpacity style={styles.backdropTouchable} onPress={closeImageModal} />
-          <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
-            <View style={{ display: 'flex', alignSelf: 'flex-end', marginTop: 10, marginRight: 15 }}>
-              <TouchableOpacity onPress={closeImageModal}>
-                <Text style={[styles.basicButtonText, {fontSize: 18}]}>Done</Text>
-              </TouchableOpacity>
-            </View>
-            <View>
-              { selectedImage ? 
-                <Image source={{ uri: selectedImage }} style={styles.previewImage} /> 
-                : 
-                <View style={styles.previewImage}>
-                  <View style={{ width: 250, height: 250, borderRadius: 50, backgroundColor: 'grey', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: 'white' }}>No image selected</Text>
-                  </View>
-                </View>
-              }
-              { selectedImage ?
-                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%'}}>
-                  <Pressable style={styles.editButton} onPress={openImagePicker}>
-                    <View style={styles.imageSection}>
-                    <Text style={styles.basicButtonText}>Edit</Text>
-                    </View>
-                  </Pressable>
-                  <TouchableOpacity onPress={removeCollectionImage} style={[styles.editButton, styles.removeButton]}>
-                    <Text style={styles.basicButtonText}>{"Remove"}</Text>
-                  </TouchableOpacity>
-                </View>
-                :
-                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%'}}>
-                  <Pressable style={styles.editButton} onPress={openImagePicker}>
-                    <View style={styles.imageSection}>
-                    <Text style={[styles.basicButtonText]}>Add Image</Text>
-                    </View>
-                  </Pressable>
-                </View>
-              }
-            </View>
-            <View></View>
-          </Animated.View>
-        </Animated.View>
+      {modalVisible && modalVisibleContent &&(
+        <Modal fadeAnim={fadeAnim} slideAnim={slideAnim} closeModal={closeModal} >
+          { modalVisibleContent === 'image-modal' &&
+            <CollectionImageModal selectedImage={selectedImage} openImagePicker={openImagePicker} removeCollectionImage={removeCollectionImage} closeModal={closeModal} />
+          }
+          { modalVisibleContent === 'info-modal' &&
+            <CollectionBasicFormInformation closeModal={closeModal}/>
+          }
+          </Modal>
       )}      
     </View>
   )
 });
 
+interface ModalProps {
+  fadeAnim: Animated.Value;
+  closeModal: () => void;
+  slideAnim: Animated.Value;
+  children: React.ReactNode;
+}
+
+const Modal: React.FC<ModalProps> = ({ fadeAnim, closeModal, slideAnim, children }) => {
+  const pan = useRef(new Animated.ValueXY()).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: Animated.event([null, { dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderRelease: (e, gestureState) => {
+        if (gestureState.dy > 100) {
+          closeModal();
+        } else {
+          Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            useNativeDriver: false,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  return (
+    <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
+      <TouchableOpacity style={styles.backdropTouchable} onPress={closeModal} />
+      <Animated.View 
+        {...panResponder.panHandlers} 
+        style={[
+          styles.modalContent, 
+          { transform: [{ translateY: slideAnim }] }
+          ]}>
+        {children}
+        <View></View>
+      </Animated.View>
+    </Animated.View>
+  )
+}
+
+const CollectionBasicFormInformation: React.FC<{ closeModal: () => void}> = ({ closeModal }) => {
+  return (
+    <>
+      <View style={{ display: 'flex', alignSelf: 'flex-end', width: '100%' }}>
+        <TouchableOpacity style={{marginTop: 20, marginRight: 20}} onPress={closeModal}>
+          {/* <MaterialCommunityIcons style={{textAlign: 'right'}} name='close-circle-outline' size={26} color={'gray'}/> */}
+          <MaterialIcons style={{textAlign: 'right'}} name="cancel" size={30} color="lightgrey" />
+
+        </TouchableOpacity>
+        <View style={{ width: '100%', height: 1, backgroundColor: '#ccc', marginVertical: 10 }} />
+      </View>
+      <View>
+        <Text>Collection Name</Text>
+        <TextInput placeholder="Collection Name" />
+      </View>
+    </>
+  )
+}
+const CollectionImageModal: React.FC<{ selectedImage: string|null, openImagePicker: () => void, removeCollectionImage: () => void, closeModal: () => void }> = ({ selectedImage, openImagePicker, removeCollectionImage, closeModal }) => {
+  return (
+    <>
+      <View style={{ display: 'flex', alignSelf: 'flex-end', width: '100%' }}>
+        <TouchableOpacity style={{marginTop: 20, marginRight: 20}} onPress={closeModal}>
+          <Text style={[styles.basicButtonText, {fontSize: 18, color: 'black', textAlign: 'right'}]}>Done</Text>
+        </TouchableOpacity>
+        <View style={{ width: '100%', height: 1, backgroundColor: '#ccc', marginVertical: 10 }} />
+      </View>
+      <View>
+        { selectedImage ? 
+          <Image source={{ uri: selectedImage }} style={styles.previewImage} /> 
+          : 
+          <View style={styles.previewImage}>
+            <View style={{ width: 150, height: 150, borderRadius: 50, backgroundColor: 'grey', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: 'white' }}>No image selected</Text>
+            </View>
+          </View>
+        }
+        { selectedImage ?
+          <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%'}}>
+            <Pressable style={styles.editButton} onPress={openImagePicker}>
+              <View style={styles.imageSection}>
+              <Text style={styles.basicButtonText}>Edit</Text>
+              </View>
+            </Pressable>
+            <TouchableOpacity onPress={removeCollectionImage} style={[styles.editButton, styles.removeButton]}>
+              <Text style={styles.basicButtonText}>{"Remove"}</Text>
+            </TouchableOpacity>
+          </View>
+          :
+          <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%'}}>
+            <Pressable style={styles.editButton} onPress={openImagePicker}>
+              <View style={styles.imageSection}>
+              <Text style={[styles.basicButtonText]}>Add Image</Text>
+              </View>
+            </Pressable>
+          </View>
+        }
+      </View> 
+    </>
+  )
+}
 
 const styles = StyleSheet.create({
   headerContainer: {
     marginTop: 20,
-    marginBottom: 10,
+    marginBottom: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   header: {
     fontSize: 18,
-    fontWeight: '500',
-  },
-  infoIcon: {
-    marginRight: 20,
+    fontWeight: '700',
   },
   subHeaderContainer: {
     marginBottom: 25,
@@ -193,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'inherit',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
   },
   input: {
@@ -224,9 +330,10 @@ const styles = StyleSheet.create({
     width: '100%',
     marginRight: 5,
     borderRadius: 10,
-    paddingVertical: 10,
+    padding: 11,
     borderWidth: 1,
     borderColor: 'black',
+    marginBottom: 20,
   },
   saveCollectionButtonText: {
     fontSize: 16,
@@ -248,8 +355,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   previewImage: {
-    width: 250,
-    height: 250,
+    width: 150,
+    height: 150,
     borderRadius: 10,
   },
   editButton: {
@@ -274,7 +381,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
@@ -287,10 +393,21 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    height: '75%',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    height: '60%',
+    backgroundColor: 'white',
+    backfaceVisibility: 'hidden',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderTopEndRadius: 20,
+    borderTopStartRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 5,
   },
 });
 

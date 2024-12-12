@@ -30,10 +30,21 @@ const AddCollection: React.FC<AddProductsProps> = ({ navigation, route }) => {
   const [productsList, setProductsList] = React.useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState('collection_basic_details');
 
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        setCollectionName('');
+        setProductsList([]);
+        setCurrentPage('collection_basic_details');
+      };
+    }, [])
+  );
+
+
   useLayoutEffect(() => {
     if (currentPage === 'collection_basic_details') {
       navigation.setOptions({
-        title: 'Create a Collection',
+        title: 'Create Collection',
         headerBackTitle: 'Back',
         headerBackTitleVisible: true,
         headerLeft: () => (

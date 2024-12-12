@@ -178,21 +178,8 @@ export default function RootLayout() {
             })}
           />
           <Stack.Screen name="AddCollection" 
-              component={AddCollection} 
-              initialParams={{ creator_id: 'the.praveen' }}
-              options={({ navigation }: { navigation: NavigationProp<RootStackParamList> }) => ({
-                title: 'Create a collection',
-                headerBackTitle: 'Back',
-                headerBackTitleVisible: true,
-                headerLeft: () => (
-                  <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => navigation.navigate('AddProducts', { creator_id: 'the.praveen' })}
-                    >
-                    <Ionicons name="chevron-back" size={24} color="black" />
-                  </TouchableOpacity>
-                ),
-            })}
+            component={AddCollection} 
+            initialParams={{ creator_id: 'the.praveen' }}
           />
 
           <Stack.Screen name="Notification" 
