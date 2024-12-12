@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = 'https://www.linkfit.com';
+const BASE_URL = 'https://www.linkfit.app';
 
 class NetworkService {
   private axiosInstance: AxiosInstance;

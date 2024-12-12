@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, StyleSheet, Image } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -28,24 +28,19 @@ const SocialMediaLinking: React.FC<SocialMediaLinkingProps> = ({setCurrentPage})
     <View style={styles.container}>
       <View style={styles.bodyContainer}>
         <View>
-          <TouchableOpacity
+            <TouchableOpacity
             style={styles.card}
             onPress={() => openRecordsInSocialMedia('instagram')} // Navigate to the target page when clicked
-          >
-            <Text style={styles.cardTitle}>Instagram</Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => openRecordsInSocialMedia('youtube')} // Navigate to the target page when clicked
-          >
-            <Text style={styles.cardTitle}>Youtube</Text>
-          </TouchableOpacity>
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Image source={require('../../Images/Instagram_icon.png.webp')} style={{ width: 45, height: 45, marginRight: 10 }} />
+                <Text style={styles.cardTitle}>Instagram</Text>
+              </View>
+            </TouchableOpacity>
         </View>
       </View>
       <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 7, paddingHorizontal: 5, marginBottom: 10, marginHorizontal: 10}}>
-        <TouchableOpacity style={{backgroundColor: 'green', width: '100%', borderRadius: 10, paddingTop: 10, paddingBottom: 10}} onPress={() => saveCollectionWithSocialMedia()}>
+        <TouchableOpacity style={{backgroundColor: '#34AE57', width: '100%', borderRadius: 10, paddingTop: 10, paddingBottom: 10}} onPress={() => saveCollectionWithSocialMedia()}>
           <Text style={{textAlign: 'center', fontSize: 16, color: 'white', paddingVertical: 5}}>Proceed</Text>
         </TouchableOpacity>
       </View>

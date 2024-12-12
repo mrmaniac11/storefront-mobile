@@ -38,7 +38,7 @@ const CollectionProductDetails: React.FC<CollectionProductsProps> = ({
         <BlurView intensity={80} style={styles.textContainer} tint="light">
            <View style={{}}>
           <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.price}>Price: ${item.price}</Text>
+          <Text style={styles.price}>${item.price}</Text>
         </View>
         </BlurView>
       </ImageBackground>
@@ -46,7 +46,7 @@ const CollectionProductDetails: React.FC<CollectionProductsProps> = ({
   );
 
   return (
-    <View style={{ width: '100%', flex: 1 }}>
+    <View style={{ width: '100%', flex: 1, marginBottom: '12%' }}>
       <FlatList
         data={products}
         renderItem={renderItem}

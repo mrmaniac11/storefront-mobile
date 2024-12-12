@@ -93,7 +93,7 @@ const signUpAuthentication: React.FC<signUpProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={{ flex: 1}}>
-        <Text style={{fontSize: 26, fontWeight: 'bold', display: 'flex', alignSelf: 'center',}}>likfit</Text>
+        <Text style={{fontSize: 26, fontWeight: 'bold', display: 'flex', alignSelf: 'center',}}>LinkFit</Text>
         <View style={styles.inputFieldsContainer}>
           { formData.type === 'signup' ?
             <>

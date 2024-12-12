@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, TextInput, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, TextInput, ScrollView, Modal, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from '@mui/material';
-import { Ionicons } from '@expo/vector-icons'; // Or any other icon library 
+import { Ionicons } from '@expo/vector-icons';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -42,13 +42,32 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
   const [modalVisible, setModalVisible] = React.useState(false);
   const inputRef = useRef<TextInput>(null);
 
+  const newProduct: Product = {
+    id: productsList.length + 1,
+    url: '',
+    selectedTags: []
+  };
+
   React.useEffect(() => {
     if (modalVisible && inputRef.current) {
       inputRef.current.focus();
     }
   }, [modalVisible]);
 
-  const toggleModal = () => setModalVisible(!modalVisible);
+  const toggleModal = () => {
+    if (modalVisible && currentProduct && !currentProduct.url) {
+      setProductsList((prevList) => 
+        prevList.filter((product) => product.id !== currentProduct.id)
+      );
+    }
+    setModalVisible(!modalVisible);
+  };
+
+  const deleteProductFromCollection = (productId: number) => {
+    setProductsList((prevList) => 
+      prevList.filter((product) => product.id !== productId)
+    );
+  }
 
   interface Category {
     id: number;
@@ -109,11 +128,6 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
   ];
 
   const addNewProductToCollection = () => {
-    const newProduct: Product = {
-      id: productsList.length + 1,
-      url: '',
-      selectedTags: []
-    };
     setProductsList([...productsList, newProduct]);
     toggleModal();
     setCurrentProduct(newProduct);
@@ -186,29 +200,74 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
                 <View key={product.id} style={styles.productCard}>
                   {product.url ? (
                     <TouchableOpacity style={styles.productCardTouch} onPress={() => showProductDetail(product)}>
-                      <View style={styles.productCardViewContainer}>
-                        <View style={styles.productCardView}>
-                          {/* <View style={styles.productId}>
-                            <Text>{product.id}</Text>
-                          </View> */}
-                          <View style={{ width: '100%', marginLeft: 0, backgroundColor: '#34AE57', paddingVertical: 5, borderRadius: 7 }}>
-                            <ScrollView
-                              horizontal
-                              showsHorizontalScrollIndicator={false}
-                              contentContainerStyle={styles.productUrlContainer}
-                            >
-                              <Text style={styles.productUrlText}>{product.url}</Text>
-                            </ScrollView>
+                      <View style={[styles.productCardViewContainer, styles.productCardViewContainerParent]}>
+                        <View style={styles.productCardViewContainer}>
+                          <View style={styles.productCardView}>
+                            {/* <View style={styles.productId}>
+                              <Text>{product.id}</Text>
+                            </View> */}
+                            <View style={{display: 'flex', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
+                                <TouchableOpacity style={{}} onPress={() => Linking.openURL(product.url)}>
+                                <Ionicons name="link-sharp" size={20} color="#3d85c6" />
+                                </TouchableOpacity>
+                              <View style={{ width: '92%', marginLeft: 0, padding: 10, borderRadius: 7, borderWidth: 1, borderColor: 'lightgray'}}>
+                                <ScrollView
+                                  horizontal
+                                  showsHorizontalScrollIndicator={false}
+                                  contentContainerStyle={styles.productUrlContainer}
+                                >
+                                  <Text style={styles.productUrlText}>{product.url}</Text>
+                                </ScrollView>
+                              </View>
+                              
+                            </View>
+                            
+                          </View>
+                            <View style={{display: 'flex', flexDirection: 'row'}}>
+                              <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '60%'}}>
+                                { product.selectedTags.length === 1 &&
+                                  <View style={[styles.categoryTag, styles.categoryTagForSelectedProducts, { maxWidth: '50%', backgroundColor: 'gray'}]}>
+                                    <Text style={{color: 'white'}} numberOfLines={1}>{product.selectedTags[0]}</Text>
+                                  </View>
+                                } 
+                                {!product.selectedTags.length &&
+                                  <View style={[styles.categoryTag, styles.categoryTagForSelectedProducts, { maxWidth: '100%', backgroundColor: 'inherit'}]}>
+                                    <Text style={{fontWeight: 'bold', fontStyle: 'italic', color: 'gray'}} numberOfLines={1}>{"No Categories"}</Text>
+                                  </View>
+                                }
+                                {product.selectedTags.length > 1 && (
+                                  <View style={{justifyContent: 'center', alignItems: 'center', borderRadius: 50, height: 30, margin: 5, marginLeft: 15}}>
+                                    <Text style={{fontWeight: 'bold', fontStyle: 'italic', color: 'gray', fontSize: 13}}>
+                                      <Text>
+                                        {product.selectedTags.length > 9 ? 
+                                        `9+ ` : `${product.selectedTags.length}  `
+                                        } 
+                                        <Text>{"Categories"}</Text>
+                                      </Text>
+                                    </Text>
+                                  </View>
+                                )}
+                              </View>
+                              <View style={{width: '40%', justifyContent: 'center', alignItems: 'flex-end'}}>
+                                <View style={{display:'flex', flexDirection: 'row', alignSelf: 'flex-end'}}>
+                                  <TouchableOpacity
+                                    style={{}}
+                                    onPress={toggleModal}
+                                  >
+                                    <Ionicons name="pencil" size={20} color='#1485b3'/>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    style={{ marginHorizontal: 10}}
+                                    onPress={() => deleteProductFromCollection(product.id)}
+                                  >
+                                    <Ionicons name="trash" size={20} color='#ff4757'/>
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
                           </View>
                         </View>
-                        <View style={{display: 'flex', flexDirection: 'row', width: '95%', overflow: 'scroll', marginStart: 10}}>
-                          {product.selectedTags.map((tag: String) => (
-                            <View style={[styles.categoryTag, styles.categoryTagForSelectedProducts]}>
-                              <Text style={{color: 'white'}}>{tag}</Text>
-                            </View>
-                          ))}
-                        </View>
                       </View>
+                      
                     </TouchableOpacity>
                   ) : null}
                 </View>
@@ -246,7 +305,7 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
                           style={{ position: 'absolute', right: 10, top: '36%', backgroundColor: 'white', paddingStart: 10}}
                           onPress={toggleModal}
                         >
-                          <Ionicons name="checkmark" size={24} color='green'/>
+                          <Ionicons name="checkmark" size={24} color='#34AE57'/>
                         </TouchableOpacity>
                       ) : null}
                     </View>
@@ -307,8 +366,8 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
             Save
             </Button>
           </View>
-          <Button style={{color: 'white', backgroundColor: 'green', width: '60%', marginLeft: 10, borderRadius: 10, paddingTop: 6, paddingBottom: 6}} onClick={() => {setCurrentPage('social_media_linking')}}>
-            Save and Link
+          <Button style={{color: 'white', backgroundColor: '#34AE57', width: '60%', marginLeft: 10, borderRadius: 10, paddingTop: 6, paddingBottom: 6}} onClick={() => {setCurrentPage('social_media_linking')}}>
+            Link Social Media
           </Button>
         </View>
       </View>
@@ -316,6 +375,13 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
 })
 
 
+const commonShadowStyles = {
+  borderRadius: 10,
+  shadowColor: '#000',
+  shadowOpacity: 0.1,
+  shadowRadius: 2,
+  elevation: 5,
+};
 
 const styles = StyleSheet.create({
   addButtonContainer: {
@@ -325,7 +391,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     height: '100%',
-    backgroundColor: 'green',
+    backgroundColor: '#34AE57',
     flexDirection: 'row',
     alignItems: 'center',
     paddingStart: 20,
@@ -405,19 +471,19 @@ const styles = StyleSheet.create({
     minHeight: screenHeight * 0.2,
     maxHeight: screenHeight * 0.5,
     width: '100%',
-    backgroundColor: 'rgb(143,143,143)',
+    backgroundColor: 'black',
     overflow: 'scroll'
   },
 
   categoryTag: {
     display: 'flex',
     flexDirection: 'row',
-    backgroundColor: 'black',
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 14,
-    margin: 5
+    margin: 5,
+    backgroundColor: 'rgb(87, 86, 86)',
   },
 
   categoryTagForSelectedProducts: {
@@ -425,14 +491,16 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 10,
   },
-  productCardViewContainer: {
-    // backgroundColor: 'rgba(0, 0, 0, 0.1)', 
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 20,
-    paddingVertical: 10
+  productCardViewContainerParent: {
+    ...commonShadowStyles,
+    shadowOffset: { width: -1, height: 5 },
+    marginBottom: 15,
   },
+  productCardViewContainer: {
+    ...commonShadowStyles,
+    shadowOffset: { width: 1, height: 5 },
+  },
+  
   productUrlContainer: {
     flexGrow: 1, // Ensures the scrollview grows if necessary
   },

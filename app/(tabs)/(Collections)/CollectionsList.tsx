@@ -63,12 +63,13 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
   const [data, setData] = useState<Collections[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasMorePage, setHasMorePage] = useState<boolean>(true);
+  const [searchText, setSearchText] = useState<string>('');
 
   const fadeAnimProduct = useRef(new Animated.Value(0)).current;
   const COLLECTION_LIST_PER_PAGE = 40;
 
-  const slideAnim = useRef(new Animated.Value(screenHeight)).current;
-  const slideAnimProduct = useRef(new Animated.Value(screenHeight)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const slideAnimProduct = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const pageRef = useRef(0);
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -82,17 +83,17 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
 
   // Mock data's
   const mockDataStore: Collections[] = [];
-  let globalIndex = 1001;
+  let globalIndex = 1000;
   const mockData: Item[] =  [
-    { id: "1685", title: "Title", price: 112, image_url: "https://m.media-amazon.com/images/I/81Lq+GdvLML._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1686", title: "Title", price: 113, image_url: "https://m.media-amazon.com/images/I/71PJDbuITPL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1687", title: "Title", price: 114, image_url: "https://m.media-amazon.com/images/I/61oXoXM4LDL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1688", title: "Title", price: 115, image_url: "https://m.media-amazon.com/images/I/91-UGuJO5hL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1689", title: "Title", price: 116, image_url: "https://m.media-amazon.com/images/I/61J+31tRUJL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1690", title: "Title", price: 117, image_url: "https://m.media-amazon.com/images/I/6141UBj2nXL._SY879_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1691", title: "Title", price: 118, image_url: "https://m.media-amazon.com/images/I/81ZRJ33PZCL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1692", title: "Title", price: 119, image_url: "https://m.media-amazon.com/images/I/81SOsEnYUBL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
-    { id: "1693", title: "Title", price: 120, image_url: "https://m.media-amazon.com/images/I/91GLR08Ns5L._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.linkfit.com/share/xcv3sd" },
+    { id: "1685", title: "Title", price: 112, image_url: "https://m.media-amazon.com/images/I/81Lq+GdvLML._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1686", title: "Title", price: 113, image_url: "https://m.media-amazon.com/images/I/71PJDbuITPL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1687", title: "Title", price: 114, image_url: "https://m.media-amazon.com/images/I/61oXoXM4LDL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1688", title: "Title", price: 115, image_url: "https://m.media-amazon.com/images/I/91-UGuJO5hL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1689", title: "Title", price: 116, image_url: "https://m.media-amazon.com/images/I/61J+31tRUJL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1690", title: "Title", price: 117, image_url: "https://m.media-amazon.com/images/I/6141UBj2nXL._SY879_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1691", title: "Title", price: 118, image_url: "https://m.media-amazon.com/images/I/81ZRJ33PZCL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1692", title: "Title", price: 119, image_url: "https://m.media-amazon.com/images/I/81SOsEnYUBL._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
+    { id: "1693", title: "Title", price: 120, image_url: "https://m.media-amazon.com/images/I/91GLR08Ns5L._AC_UL640_FMwebp_QL65_.jpg", affiliate_url: "www.LinkFit.com/share/xcv3sd" },
   ];
   const generateMockData = (count: number) => {
     const mockData: Collections[] = [];
@@ -105,7 +106,7 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
         description: `Test Collection Description ${globalIndex}`,
         image_url: "",
         media_ind: true,
-        total_products: 5,
+        total_products: Math.floor(Math.random() * 6) + 1,
         media_data: {
           id: (globalIndex + 1000).toString(),
           media_id: `XCV67890@#DFH${globalIndex}`,
@@ -175,72 +176,76 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
     fetchData();
   }, []);
 
-  // Model operations
   const openProductDetails = (product: Item) => {
-    setSelectedProduct(product);
     setModalVisibleProductDetail(true);
     Animated.parallel([
       Animated.timing(slideAnimProduct, {
         toValue: 0,
-        duration: 5,
+        duration: 200,
         useNativeDriver: true,
         easing: Easing.out(Easing.ease),
       }),
       Animated.timing(fadeAnimProduct, {
-        toValue: 1, // Fade in
-        duration: 5,
+        toValue: 1,
+        duration: 300,
         useNativeDriver: true,
       }),
     ]).start();
+    setSelectedProduct(product);
+
   };
   const closeProductDetails = () => {
+    setModalVisibleProductDetail(false);
     Animated.parallel([
       Animated.timing(slideAnimProduct, {
         toValue: screenHeight,
-        duration: 5,
+        duration: 300,
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnimProduct, {
         toValue: 0,
-        duration: 5,
+        duration: 300,
         useNativeDriver: true,
       }),
     ]).start(() => {
-      setModalVisibleProductDetail(false);
       setSelectedProduct(null);
     });
   };
+
+
+  
   const openListOfProductDetails = () => {
     setModalVisible(true);
-  
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 5,
+        duration: 200,
         useNativeDriver: true,
         easing: Easing.out(Easing.ease),
       }),
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 5,
+        duration: 200,
         useNativeDriver: true,
       }),
     ]).start();
+    // Set list of products
+    // setSelectedCollectionProducts([....]);
   };
   const closeListOfProductDetails = () => {
+    setModalVisible(false);
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: screenHeight,
-        duration: 5,
+        duration: 200,
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 5,
+        duration: 200,
         useNativeDriver: true,
       }),
     ]).start(() => {
-      setModalVisible(false);
       setSelectedCollectionProducts([]);
     });
   };
@@ -387,7 +392,7 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
                   <BlurView intensity={80} style={styles.textContainer} tint="light">
                     <View>
                     <Text style={styles.title}>{firstItem.name}</Text>
-                    <Text style={styles.total}>Total Products: {firstItem.total_products}</Text>
+                    <Text style={styles.total}>{firstItem.total_products} {firstItem.total_products > 1 ? "Products" : "Product"}</Text>
                     </View>
                   </BlurView>
                 </ImageBackground>
@@ -409,8 +414,8 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
               >
                 <BlurView intensity={80} style={styles.textContainer} tint="light">
                   <View>
-                  <Text style={styles.title}>{firstItem.name}</Text>
-                    <Text style={styles.total}>Total Products: {firstItem.total_products}</Text>
+                  <Text style={styles.title}>{secondItem.name}</Text>
+                    <Text style={styles.total}>{secondItem.total_products} {secondItem.total_products > 1 ? "Products" : "Product"}</Text>
                   </View>
                 </BlurView>
               </ImageBackground>
@@ -423,97 +428,106 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
 
   return (
     <View style={styles.container}>
-        <View style={{ flex: 1 }}>
-          <View style={{ marginTop: 10, flex: 1 }}>
-            <Animated.View
-              style={[
+      <View style={{ flex: 1 }}>
+        <View style={{ marginTop: 40, flex: 1 }}>
+          <Animated.View
+            style={[
               styles.searchContainer,
               {
                 opacity: opacity,
                 transform: [{ translateY: translateY }],
               },
+            ]}
+          >
+            <SearchBar
+              style={styles.searchBar}
+              placeholder="Search your collections"
+              placeholderTextColor="gray"
+              onPress={() => {}}
+              onSearchPress={() => console.log("Search Icon is pressed")}
+              onChangeText={setSearchText}
+              onClearPress={() => {}}
+              textInputStyle={[
+                styles.textInput,
+                !searchText ? { fontStyle: 'italic' } : {}
               ]}
-            >
-              <SearchBar
-                style={styles.searchBar}
-                placeholder="Search here"
-                onPress={() => {}}
-                onSearchPress={() => console.log("Search Icon is pressed")}
-                onChangeText={(text) => console.log(text)}
-                onClearPress={() => {}}
-                textInputStyle={styles.textInput}
-              />
-            </Animated.View>
-            <Animated.View style={{marginTop: marginTopAnim, flex: 1}}>
-              <FlatList
-                data={data}
-                ref={flatListRef}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEventThrottle={16}  
-                ListFooterComponent={renderFooter}
-                onScroll={handleScroll}
-                onEndReached={fetchMoreDataOnEndReached}
-                numColumns={1}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ }}
-              />
-            </Animated.View>
-          </View>
+            />
+          </Animated.View>
+          <Animated.View style={{marginTop: marginTopAnim, flex: 1}}>
+            <FlatList
+              data={data}
+              ref={flatListRef}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+              scrollEventThrottle={16}  
+              ListFooterComponent={renderFooter}
+              onScroll={handleScroll}
+              onEndReached={fetchMoreDataOnEndReached}
+              numColumns={1}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{}}
+            />
+          </Animated.View>
         </View>
-        {selectedCollectionProducts?.length > 0 && modalVisible && (
-          <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
-            <TouchableOpacity style={styles.backdropTouchable} onPress={closeListOfProductDetails} />
-            <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
-              <View style={{display: 'flex', alignSelf:'flex-end', marginEnd: 10, marginVertical: 10}}>
-                <TouchableOpacity onPress={closeListOfProductDetails}>
-                    <MaterialIcons name="cancel" size={30} color="lightgrey" />           
+      </View>
+      {selectedCollectionProducts?.length > 0 && modalVisible && (
+        <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
+          <TouchableOpacity style={styles.backdropTouchable} onPress={closeListOfProductDetails} />
+          <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
+            <View style={{display: 'flex', alignSelf:'flex-end', marginEnd: 10, marginVertical: 10}}>
+              <TouchableOpacity onPress={closeListOfProductDetails}>
+                  <MaterialIcons name="cancel" size={30} color="lightgrey" />           
+              </TouchableOpacity>
+            </View>
+            <View style={{ width: '100%', height: '100%'}}>
+              {selectedCollectionProducts?.length ? 
+                <CollectionProductDetails 
+                  products={selectedCollectionProducts} 
+                  setModalVisible={setModalVisible} 
+                  setSelectedCollectionProducts={setSelectedCollectionProducts}
+                  setSelectedProduct={setSelectedProduct}
+                  setModalVisibleProductDetail={setModalVisibleProductDetail}
+                  openProductDetails={openProductDetails}
+                />  : <></>
+              }
+            </View>
+          </Animated.View>
+        </Animated.View>          
+      )}
+
+      {selectedProduct && modalVisibleProductDetail && (
+        <Animated.View style={[styles.backdrop, { opacity: fadeAnimProduct }]}>
+          <TouchableOpacity style={styles.backdropTouchable} onPress={closeProductDetailsWithProductsList} />
+          <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnimProduct }] }]}>
+            <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 10, alignItems:'center'}}>
+              <View style={{marginStart: 10, marginTop: 10}}>
+                <TouchableOpacity style={{display: 'flex', flexDirection: 'row',}} onPress={closeProductDetails}>
+                    <MaterialIcons style={{marginEnd: 5}} name="arrow-back" size={25} color="lightgrey" />
+                    <Text style={{alignSelf: 'center'}}>Back to products</Text>        
                 </TouchableOpacity>
               </View>
-              <View style={{ width: '100%', height: '100%' }}>
-                {selectedCollectionProducts?.length ? 
-                  <CollectionProductDetails 
-                    products={selectedCollectionProducts} 
-                    setModalVisible={setModalVisible} 
-                    setSelectedCollectionProducts={setSelectedCollectionProducts}
-                    setSelectedProduct={setSelectedProduct}
-                    setModalVisibleProductDetail={setModalVisibleProductDetail}
-                    openProductDetails={openProductDetails}
-            />  : <></>
-                }
-              </View>
-            </Animated.View>
-          </Animated.View>          
-        )}
-
-        {selectedProduct && modalVisibleProductDetail && (
-          <Animated.View style={[styles.backdrop, { opacity: fadeAnimProduct }]}>
-            <TouchableOpacity style={styles.backdropTouchable} onPress={closeProductDetailsWithProductsList} />
-            <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnimProduct }] }]}>
-              <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 10, alignItems:'center'}}>
-                <View style={{marginStart: 10, marginTop: 10}}>
-                  <TouchableOpacity style={{display: 'flex', flexDirection: 'row',}} onPress={closeProductDetails}>
-                      <MaterialIcons style={{marginEnd: 5}} name="arrow-back" size={25} color="lightgrey" />
-                      <Text style={{alignSelf: 'center'}}>Back to products</Text>        
-                  </TouchableOpacity>
-                </View>
-                
-                <View style={{marginEnd: 10, marginTop: 10}}>
-                  <TouchableOpacity onPress={closeProductDetailsWithProductsList}>
-                      <MaterialIcons name="cancel" size={25} color="lightgrey" />           
-                  </TouchableOpacity>
-                </View>
-              </View>
               
-              {selectedProduct ?
-                <ProductDetails productDetails={selectedProduct}/> : <></>
-              }
-            </Animated.View>
+              <View style={{marginEnd: 10, marginTop: 10}}>
+                <TouchableOpacity onPress={closeProductDetailsWithProductsList}>
+                    <MaterialIcons name="cancel" size={25} color="lightgrey" />           
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            {selectedProduct ?
+              <ProductDetails productDetails={selectedProduct}/> : <></>
+            }
           </Animated.View>
-        )}
+        </Animated.View>
+      )}
     </View>
   );
 };
+
+let cardHeight = screenHeight * 0.3
+if (screenHeight > 800) {
+  cardHeight = screenHeight * 0.27
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -523,7 +537,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'flex-end',
     width: '47%',
-    height: 250,
+    height: cardHeight,
     borderRadius: 10,
     margin: 5,
     backgroundColor: '#ccc',
@@ -542,8 +556,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   footer: {
-    padding: 10,
-    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   textInput: {
     borderWidth: 0,

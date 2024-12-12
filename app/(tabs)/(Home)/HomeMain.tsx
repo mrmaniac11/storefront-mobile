@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, ActivityIndicator, TouchableOpacity, Animated, Easing, ImageBackground, FlatList, NativeSyntheticEvent, 
-  NativeScrollEvent} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ActivityIndicator, TouchableOpacity, Animated, Easing, ImageBackground, FlatList, } from 'react-native';
 import SearchBar from "react-native-dynamic-search-bar";
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons'; 
-import MenuBar from '../../components/MenuBar';
-import { MenuProvider } from '../../components/MenuContext';
 
 
 // component imports
 import HomeTopbar from './HomeTopBar';
 import ProductDetails from '../Products/ProductDetails';
 import networkService from '@/app/network/store';
-import { useNotification } from '@/app/components/notification/NotificationContext';
 import ListLoading from '@/app/components/ListLoading';
+import { MenuProvider } from '../../components/MenuContext';
+import MenuBar from '../../components/MenuBar';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -94,8 +92,9 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasMorePage, setHasMorePage] = useState<boolean>(true);
   const [selectedProduct, setSelectedProduct] = useState<Item|null>(null);
-  const [ activeCategoryId, setActiveCategoryId ] = useState<number|null>(null);
+  const [activeCategoryId, setActiveCategoryId ] = useState<number|null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [searchText, setSearchText] = useState<string>('');
 
   const fadeAnim = useRef(new Animated.Value(screenHeight)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -256,7 +255,7 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
             onPress={clearFilterCriteria} // Replace with your close logic
             style={styles.closeButton}
           >
-            <Ionicons name="close" size={16} color="white" />
+            <Ionicons name="close" size={screenHeight * 0.02} color="white" />
           </TouchableOpacity>
         )}
       </View>
@@ -266,7 +265,7 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
     if (!isLoading ) return <View style={{ height: 0 }} />;
     if (isLoading && data.length) return <ActivityIndicator size="large" color="gray" />;
     return (
-      <View style={styles.footer}>
+      <View>
         <ListLoading />
       </View>
     );
@@ -277,58 +276,67 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
         style={styles.card}
         onPress={() => openProductDetails(item)}
       >
-        <ImageBackground
-          source={{ uri: item.image_url }}
-          style={styles.imageBackground}
-          imageStyle={{ borderRadius: 10 }}
-        >
-          <BlurView intensity={80} style={styles.textContainer} tint="light">
-            <View style={{}}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.price}>Price: ${item.price}</Text>
-            </View>
-          </BlurView>
-        </ImageBackground>
+         <View style={{ position: 'absolute', top: 5, right: -15 }}>
+            <MenuProvider>
+              <MenuBar options={menuOptions} />
+            </MenuProvider>
+          </View>
+        <View>
+          <ImageBackground
+            source={{ uri: item.image_url }}
+            style={styles.imageBackground}
+            imageStyle={{ borderRadius: 10 }}
+          >
+            <BlurView intensity={80} style={styles.textContainer} tint="light">
+              <View style={{}}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.price}>${item.price}</Text>
+              </View>
+            </BlurView>
+          </ImageBackground>
+        </View>
       </TouchableOpacity>
     );
   }
 
   return (
     <View style={{ flex: 1 }}>
-      <HomeTopbar header='linkfit' creator_id={props.creator_id} />
-      <View style={styles.container}>
-        <SearchBar
-          style={styles.searchBar}
-          placeholder="Search here"
-          onPress={() => { }}
-          onSearchPress={() => console.log("Search Icon is pressed")}
-          onChangeText={(text) => console.log(text)}
-          onClearPress={() => { }}
-          textInputStyle={styles.textInput}
-        />
-        <FlatList
-          data={data}
-          ref={flatListRef} // Pass the reference to the FlatList
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          onScroll={() => doesScrollHappend.current = true}
-          onEndReached={fetchMoreDataOnEndReached}
-          ListHeaderComponent={
-            <View style={styles.filterSection}>
-              <FlatList
-                data={preDefinedCategoriesData}
-                renderItem={renderHorizontalScrollItem}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-              />
-            </View>
-          }
-          ListFooterComponent={renderFooter}
-          numColumns={2}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+      <HomeTopbar header='LinkFit' creator_id={props.creator_id} />
+      <SearchBar
+        style={styles.searchBar}
+        placeholder="Search your products"
+        placeholderTextColor="gray" // Add this line to change placeholder style
+        onPress={() => { }}
+        onSearchPress={() => console.log("Search Icon is pressed")}
+        onChangeText={setSearchText}
+        onClearPress={() => { }}
+        textInputStyle={[
+          styles.textInput,
+          !searchText ? { fontStyle: 'italic' } : {}
+        ]}
+      />
+      <FlatList
+        data={data}
+        ref={flatListRef} // Pass the reference to the FlatList
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        onScroll={() => doesScrollHappend.current = true}
+        onEndReached={fetchMoreDataOnEndReached}
+        ListHeaderComponent={
+          <View style={styles.filterSection}>
+            <FlatList
+              data={preDefinedCategoriesData}
+              renderItem={renderHorizontalScrollItem}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+        }
+        ListFooterComponent={renderFooter}
+        numColumns={2}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      />
 
       {/* Modal for Product Details */}
       {modalVisible && selectedProduct && (
@@ -348,6 +356,16 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
   );
 };
 
+let cardHeight = screenHeight * 0.3
+if (screenHeight > 800) {
+  cardHeight = screenHeight * 0.27
+}
+
+let horizontalCardHeight = screenHeight * 0.045;
+if (screenHeight > 800) {
+  horizontalCardHeight = screenHeight * 0.038
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -363,16 +381,18 @@ const styles = StyleSheet.create({
     color: 'black'
   },
   card: {
+    flex: 1,
     display: 'flex',
     justifyContent: 'flex-end',
     width: '47%',
-    height: 250,
+    height: cardHeight,
     borderRadius: 10,
     margin: 5,
     backgroundColor: '#ccc',
     borderColor: 'lightgrey',
     borderWidth: 0.05,
     overflow: 'hidden',
+    marginVertical: 10,
   },
   title: {
     fontWeight: 'bold',
@@ -382,12 +402,9 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     textAlign: 'right'
   },
-  footer: {
-    padding: 10,
-    alignItems: 'center',
-  },
   searchBar: {
     marginBottom: 10,
+    height: 36
   },
   textInput: {
     fontSize: 16,
@@ -419,9 +436,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButton: {
-    alignSelf: 'baseline',
-    top: 5,
-    right: 5,
+    alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: semi-transparent background
     borderRadius: 12,
     padding: 4,
@@ -463,10 +478,10 @@ const styles = StyleSheet.create({
   categoryCard: {
     display: 'flex',
     flexDirection: 'row',
-    paddingStart: 20,
+    paddingStart: 15,
     paddingEnd: 5,
-    height: 35,
-    borderRadius: 10,
+    height: horizontalCardHeight,
+    borderRadius: 15,
     marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',

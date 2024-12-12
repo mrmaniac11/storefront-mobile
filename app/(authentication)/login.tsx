@@ -82,16 +82,14 @@ const LoginAuthentication: React.FC<LoginProps> = ({ navigation, route }) => {
   );
 
   const performLogin = async () => {
-    console.log()
-    // Login logic here
     await networkService.post('/login', { email: formData.email, password: formData.password }).then( async(response) => {
       let JWT = response.data.jwt;
-      let header1 = response.headers['X-LINKFIT-USER']; 
+      let header1 = response.headers['X-LinkFit-USER']; 
       await secureStore.saveAuthToken(JWT);
-      await secureStore.saveCustomHeader('linkfit_user_header', header1);
+      await secureStore.saveCustomHeader('LinkFit_user_header', header1);
     }).catch ( async(errorObj) => {
       await secureStore.saveAuthToken('JWT');
-      await secureStore.saveCustomHeader('linkfit_user_header', 'header1');
+      await secureStore.saveCustomHeader('LinkFit_user_header', 'header1');
       console.log('catch occurs')
     }).finally(() => {
       console.log('finally block executed');
@@ -175,7 +173,7 @@ const LoginAuthentication: React.FC<LoginProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 26, fontWeight: 'bold', alignSelf: 'center' }}>likfit</Text>
+        <Text style={{ fontSize: 26, fontWeight: 'bold', alignSelf: 'center' }}>LinkFit</Text>
         <View style={styles.inputFieldsContainer}>
           <Text style={{ fontSize: 32, fontWeight: 'bold', marginBottom: 10 }}>{formData.typeFormatted}</Text>
 
