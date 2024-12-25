@@ -68,14 +68,15 @@ const styles = StyleSheet.create({
   menuButton: {
     padding: 0,
   },
+  // Working
   menuWrapper: {
     elevation: 100, // Ensures the menu has the highest priority on Android
     position: 'absolute',
-    left: '-130%',
-    top: '80%',
-
+    left: '-300%',
+    top: '75%',
   },
   menuItem: {
+    width: '115%',
     paddingHorizontal: 10,
     height: 40,
     justifyContent: 'center',

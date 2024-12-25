@@ -210,7 +210,7 @@ const CollectionAddProductsContainer: React.FC<CollectionAddProductsContainerPro
                                 <TouchableOpacity style={{}} onPress={() => Linking.openURL(product.url)}>
                                 <Ionicons name="link-sharp" size={20} color="#3d85c6" />
                                 </TouchableOpacity>
-                              <View style={{ width: '92%', marginLeft: 0, padding: 10, borderRadius: 7, borderWidth: 1, borderColor: 'lightgray'}}>
+                              <View style={{ width: '92%', marginLeft: 0, padding: 10, borderRadius: 10, borderWidth: 1, borderColor: 'lightgray'}}>
                                 <ScrollView
                                   horizontal
                                   showsHorizontalScrollIndicator={false}
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   // close button
   closeButton: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: semi-transparent background
-    borderRadius: 12,
+    borderRadius: 10,
     padding: 4,
   },
 });

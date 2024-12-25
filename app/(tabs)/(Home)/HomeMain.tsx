@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, ActivityIndicator, TouchableOpacity, Animated, Easing, ImageBackground, FlatList, } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ActivityIndicator, TouchableOpacity, Animated, Easing, ImageBackground, FlatList,Image } from 'react-native';
 import SearchBar from "react-native-dynamic-search-bar";
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons'; 
-
+import { generateMockProducts } from '../../mock/mock-data';
 
 // component imports
 import HomeTopbar from './HomeTopBar';
@@ -15,7 +15,15 @@ import { MenuProvider } from '../../components/MenuContext';
 import MenuBar from '../../components/MenuBar';
 
 const screenHeight = Dimensions.get('window').height;
+let cardHeight = screenHeight * 0.3
+if (screenHeight > 800) {
+  cardHeight = screenHeight * 0.27
+}
 
+let horizontalCardHeight = screenHeight * 0.045;
+if (screenHeight > 800) {
+  horizontalCardHeight = screenHeight * 0.038
+}
 const preDefinedCategoriesData: Category[] = [
   { id: 1, title: "Party Wear" },
   { id: 2, title: "Casual Wear" },
@@ -230,8 +238,12 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
       pageRef.current = pageRef.current + 1
     } catch (error) {
       console.error("Error fetching data:", error);
-      await fetchProductMockData();
+      // await fetchProductMockData();
       pageRef.current = pageRef.current + 1
+      const data = await generateMockProducts(pageRef.current, 30);
+      setData(prevData => [...prevData, ...data]);
+      setHasMorePage(hasMorePage);
+
     } finally {
       setIsLoading(false);
     }
@@ -246,7 +258,7 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
   const renderHorizontalScrollItem = ({ item }: { item: Category }) => (
     <TouchableOpacity onPress={() => categorySelected(item.id)}>
       <View style={[styles.categoryCard, item.id === activeCategoryId && styles.activeCategory]}>
-        <Text style={[item.id === activeCategoryId && { color: 'white' }, { marginRight: 10 }]}>
+        <Text style={[item.id === activeCategoryId && { color: 'white' }, { marginRight: 10, fontSize: 13 }]}>
           {item?.title}
         </Text>
 
@@ -263,44 +275,47 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
   );
   const renderFooter = () => {
     if (!isLoading ) return <View style={{ height: 0 }} />;
-    if (isLoading && data.length) return <ActivityIndicator size="large" color="gray" />;
+    if (isLoading && data.length) return <ActivityIndicator size="large" color="green" />;
     return (
       <View>
         <ListLoading />
       </View>
     );
   };
-  const renderItem = ({ item }: { item: Item }) => {
+  const renderItem = ({ item }: { item: Item }) => {    
     return (
       <TouchableOpacity
         style={styles.card}
         onPress={() => openProductDetails(item)}
       >
-         <View style={{ position: 'absolute', top: 5, right: -15 }}>
-            <MenuProvider>
-              <MenuBar options={menuOptions} />
-            </MenuProvider>
-          </View>
         <View>
           <ImageBackground
             source={{ uri: item.image_url }}
             style={styles.imageBackground}
             imageStyle={{ borderRadius: 10 }}
           >
+              <Image
+                style={{height: cardHeight}}
+              />
             <BlurView intensity={80} style={styles.textContainer} tint="light">
               <View style={{}}>
-                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
                 <Text style={styles.price}>${item.price}</Text>
               </View>
             </BlurView>
           </ImageBackground>
+        </View>
+        <View style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'lightgray', borderBottomLeftRadius: 10, width: 30 }}>
+          <MenuProvider>
+            <MenuBar options={menuOptions} />
+          </MenuProvider>
         </View>
       </TouchableOpacity>
     );
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, paddingHorizontal: 8 }}>
       <HomeTopbar header='LinkFit' creator_id={props.creator_id} />
       <SearchBar
         style={styles.searchBar}
@@ -312,7 +327,7 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
         onClearPress={() => { }}
         textInputStyle={[
           styles.textInput,
-          !searchText ? { fontStyle: 'italic' } : {}
+          // !searchText ? { fontStyle: 'italic' } : {}
         ]}
       />
       <FlatList
@@ -343,9 +358,10 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
         <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
           <TouchableOpacity style={styles.backdropTouchable} onPress={closeProductDetails} />
           <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
-            <View style={{ display: 'flex', alignSelf: 'flex-end', marginEnd: 10, marginTop: 10 }}>
+            <View style={{ display: 'flex', alignSelf: 'flex-end', marginEnd: 10, marginTop: 10, marginBottom: 20 }}>
               <TouchableOpacity onPress={closeProductDetails}>
-                <MaterialIcons name="cancel" size={30} color="lightgrey" />
+                {/* <MaterialIcons name="cancel" size={30} color="lightgrey" /> */}
+                <Text style={{ fontSize: 16, color: 'rgb(3, 101, 244)' }}>Close</Text>
               </TouchableOpacity>
             </View>
             <ProductDetails productDetails={selectedProduct} />
@@ -356,20 +372,7 @@ const HomeMain: React.FC<HomeMainPageParams> = (props) => {
   );
 };
 
-let cardHeight = screenHeight * 0.3
-if (screenHeight > 800) {
-  cardHeight = screenHeight * 0.27
-}
-
-let horizontalCardHeight = screenHeight * 0.045;
-if (screenHeight > 800) {
-  horizontalCardHeight = screenHeight * 0.038
-}
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   filterSection: {
     paddingHorizontal: 10,
     paddingVertical: 10,
@@ -384,30 +387,33 @@ const styles = StyleSheet.create({
     flex: 1,
     display: 'flex',
     justifyContent: 'flex-end',
-    width: '47%',
+    width: '45%',
     height: cardHeight,
     borderRadius: 10,
     margin: 5,
     backgroundColor: '#ccc',
     borderColor: 'lightgrey',
-    borderWidth: 0.05,
+    borderWidth: 0.5,
     overflow: 'hidden',
     marginVertical: 10,
   },
   title: {
-    fontWeight: 'bold',
-    fontSize: 16,
+    color: 'black',
+    fontWeight: '400',
+    fontSize: 12,
   },
   price: {
-    marginTop: 'auto',
-    textAlign: 'right'
+    marginTop: 10,
+    fontSize: 14,
+    fontWeight: 'bolder',
   },
   searchBar: {
     marginBottom: 10,
-    height: 36
+    height: 35,
+    width: '95%'
   },
   textInput: {
-    fontSize: 16,
+    fontSize: 14,
   },
   backdrop: {
     position: 'absolute',
@@ -438,7 +444,7 @@ const styles = StyleSheet.create({
   closeButton: {
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: semi-transparent background
-    borderRadius: 12,
+    borderRadius: 10,
     padding: 4,
   },
   modelContainer: {
@@ -447,41 +453,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
   },
-
-  productImage: {
-    flex: 1,
-    maxHeight: screenHeight * 0.5,
-    width: '100%',
-    alignSelf: 'center',
-    backgroundColor: 'grey',
-    position: 'relative',
-    borderRadius: 20
-  },
-  optionContainer: {
-    position: 'absolute',
-    width: 70,
-    height: 70,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    borderRadius: 35,
-    right: 10,
-    bottom: -30
-  },
-  options: {
-    alignSelf: 'center',
-    width: 48,
-    height: 48,
-    backgroundColor: 'grey',
-    borderRadius: 24
-  },
-
   categoryCard: {
     display: 'flex',
     flexDirection: 'row',
     paddingStart: 15,
     paddingEnd: 5,
     height: horizontalCardHeight,
-    borderRadius: 15,
+    maxHeight: 30,
+    borderRadius: 10,
     marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -511,7 +490,6 @@ const styles = StyleSheet.create({
   textContainer: {
     backgroundColor: 'lightgray',
     padding: 8,
-    alignItems: 'flex-end'
   },
 });
 

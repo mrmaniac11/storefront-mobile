@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f9f9f9',
     alignItems: 'center',
-    borderRadius: 5,
+    borderRadius: 10,
   },
 });
 

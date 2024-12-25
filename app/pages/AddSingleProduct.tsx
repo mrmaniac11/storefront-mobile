@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderWidth: 1,
     padding: 10,
-    borderRadius: 15
+    borderRadius: 10
   },
   bottomContainer: {
     marginHorizontal: 20,

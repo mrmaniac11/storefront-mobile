@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types';
 
@@ -23,67 +23,64 @@ interface productDeailsProps {
   productDetails: Item
 }
 
-const ProductDetails: React.FC<productDeailsProps> = ({}) => {
+const ProductDetails: React.FC<productDeailsProps> = ({productDetails}) => {
+  console.log(productDetails);
+  
   return (
-    <View style={{flex: 1, width: '80%', borderRadius: 20}}>
+    <View style={{flex: 1, width: '80%', borderRadius: 10}}>
       <View style={styles.modelContainer}>
-        <View style={styles.productImage}>
-          {/* <View style={styles.optionContainer}>
-              <View style={styles.options}>
-              
-              </View>
-          </View> */}
-        </View>
-        <View style={{width: '100%'}}>
-          <View >
-            <Text style={styles.date}>28-Aug-2024</Text>
+          {productDetails.image_url_large ? (
+            <Image
+              style={[styles.productImage]}
+              source={{ uri: productDetails.image_url_large }}
+              />
+            ) : (
+              <Text>Loading...</Text>
+          )}
+        <View style={{ width: '100%' }}>
+          <View>
+        <Text style={styles.date}>28-Aug-2024</Text>
           </View>
-          
+
           <View style={styles.descriptionContainer}>
-            <View style={styles.brandLogoContainer}>
-              <View style={styles.brandLogo}>
-                
-              </View>
-            </View>
-            <View style={styles.descriptionContentContainer}>
-              <Text style={styles.description} numberOfLines={1}>
-                RoastedOver shirt t-shirt for men
-              </Text>
-              <Text>Myntra</Text>
-            </View>
-            <View style={styles.rateContainer}>
-              <Text style={styles.rate}>$699.99</Text>
-            </View>
+        <View style={styles.brandLogoContainer}>
+          <View style={styles.brandLogo}></View>
+        </View>
+        <View style={styles.descriptionContentContainer}>
+          <Text style={styles.description} numberOfLines={1}>
+            RoastedOver shirt t-shirt for men
+          </Text>
+          <Text>Myntra</Text>
+        </View>
+        <View style={styles.rateContainer}>
+          <Text style={styles.rate}>$699.99</Text>
+        </View>
           </View>
           <View style={styles.additionalInforamtion}>
-            <View style={styles.additionalInforamtionSection}>
-              <View style={styles.additionalInforamtionCard}>
-                <Text style={styles.additionalInforamtionText}>3.5</Text>
-              </View>
-              <Text style={styles.additionalInforamtionTitle}>
-                Affiliate
-              </Text>
-            </View>
-            
-            <View style={styles.additionalInforamtionSection}>
-              <Text style={[styles.additionalInforamtionTitle, { marginTop: 'auto'} ]}>
-                Earned amount
-              </Text>
-              <Text style={[styles.additionalInforamtionText, { margin: 'auto', fontSize: 16, fontWeight: 700}]}>244883</Text>
-              
-            </View>
+        <View style={styles.additionalInforamtionSection}>
+          <View style={styles.additionalInforamtionCard}>
+            <Text style={styles.additionalInforamtionText}>3.5</Text>
+          </View>
+          <Text style={styles.additionalInforamtionTitle}>Affiliate</Text>
+        </View>
 
-            <View style={styles.additionalInforamtionSection}>
-              <View style={styles.additionalInforamtionCard}>
-                <Text style={styles.additionalInforamtionText}>6.7</Text>
-              </View>
-              <Text style={styles.additionalInforamtionTitle}>
-                Total Unit
-              </Text>
-            </View>
+        <View style={styles.additionalInforamtionSection}>
+          <Text style={[styles.additionalInforamtionTitle, { marginTop: 'auto' }]}>
+            Earned amount
+          </Text>
+          <Text style={[styles.additionalInforamtionText, { margin: 'auto', fontSize: 16, fontWeight: 700 }]}>
+            244883
+          </Text>
+        </View>
+
+        <View style={styles.additionalInforamtionSection}>
+          <View style={styles.additionalInforamtionCard}>
+            <Text style={styles.additionalInforamtionText}>6.7</Text>
           </View>
-          <View style={styles.impressionContainer}>
+          <Text style={styles.additionalInforamtionTitle}>Total Unit</Text>
+        </View>
           </View>
+          <View style={styles.impressionContainer}></View>
         </View>
       </View>
     </View>
@@ -103,9 +100,13 @@ const styles = StyleSheet.create({
     maxHeight: screenHeight * 0.5,
     width: '100%',
     alignSelf: 'center',
-    backgroundColor: 'grey',
     position: 'relative',
-    borderRadius: 20
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5, // For Android
   },
   date: {
     alignSelf: 'auto',
@@ -136,7 +137,6 @@ const styles = StyleSheet.create({
     width: 34,
     borderRadius: 17,
     backgroundColor: 'grey',
-
   },
 
   // Ensure the description content stacks below the logo
@@ -189,9 +189,9 @@ const styles = StyleSheet.create({
     marginTop: screenWidth * 0.05,
     height: screenWidth * 0.1,
     width: screenWidth * 0.7,
-    backgroundColor: 'lightgrey',
-    borderRadius: 5
+    borderRadius: 10
   },
+
 });
 
 export default ProductDetails;

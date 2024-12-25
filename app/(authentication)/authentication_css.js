@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderWidth: 1,
     padding: 20,
-    borderRadius: 15,
+    borderRadius: 10,
     backgroundColor: 'rgb(233, 233, 233)',
   },
   loginContainer: {
@@ -26,12 +26,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loginButton: {
-    borderRadius: 20,
+    borderRadius: 10,
     backgroundColor: '#34AE57',
     padding: 12
   },
   primaryButtonDisabled: {
-    borderRadius: 20,
+    borderRadius: 10,
     padding: 12,
     backgroundColor: '#83c997',
   },

@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderWidth: 1,
     padding: 20,
-    borderRadius: 15,
+    borderRadius: 10,
   },
   attachImageBtn: {
     alignContent: 'flex-end',
@@ -342,14 +342,6 @@ const styles = StyleSheet.create({
   },
 
   // For Selected Image preview
-  button: {
-    alignContent: 'flex-end',
-    width: 80,
-    padding: 10,
-    backgroundColor: '#007bff',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
   buttonText: {
     textAlign: 'center',
     color: '#fff',
@@ -364,7 +356,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 15,
     backgroundColor: '#126cbd',
-    borderRadius: 5,
+    borderRadius: 10,
   },
   removeButton: {
     backgroundColor: '#ff4757',

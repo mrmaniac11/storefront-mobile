@@ -13,7 +13,8 @@ import { View,
   NativeSyntheticEvent, 
   NativeScrollEvent,
   ImageBackground,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import SearchBar from "react-native-dynamic-search-bar";
 import { MaterialIcons } from '@expo/vector-icons';
@@ -24,8 +25,13 @@ import CollectionProductDetails from './CollectionProducts';
 import ListLoading from '@/app/components/ListLoading';
 import MenuBar from '../../components/MenuBar';
 import { MenuProvider } from '../../components/MenuContext';
+import { generateMockCollections } from '../../mock/mock-data';
 
 const screenHeight = Dimensions.get('window').height;
+let cardHeight = screenHeight * 0.3
+if (screenHeight > 800) {
+  cardHeight = screenHeight * 0.27
+}
 interface CollectionListPageProps {
   creator_id: string;
 }
@@ -77,7 +83,7 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current
   const previousOffset = useRef(0);
-  const marginTopAnim = useRef(new Animated.Value(60)).current;
+  const marginTopAnim = useRef(new Animated.Value(50)).current;
   const doesScrollHappend = useRef(false);
   const flatListRef = useRef<FlatList>(null);
 
@@ -111,7 +117,7 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
           id: (globalIndex + 1000).toString(),
           media_id: `XCV67890@#DFH${globalIndex}`,
           media_type: "Reel",
-          media_source: "Instagram",
+          media_source: "instagram",
           thumbnail_url: "www.instagram.com/assets/image-png",
         },
       });
@@ -263,14 +269,17 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
         limit: COLLECTION_LIST_PER_PAGE
       });
       const collections = response.data.collections || [];
-      const hasMore = response.data.pagination?.has_more_page || false;
+      const hasMorePage = response.data.pagination?.has_more_page || false;
       setData(prevData => [...prevData, ...collections]);
-      setHasMorePage(hasMore);
+      setHasMorePage(hasMorePage);
       pageRef.current = pageRef.current + 1;
     } catch (error) {
         console.error("Error fetching data:", error);
-        await fetchCollectionMockData();
+        // await fetchCollectionMockData();
         pageRef.current = pageRef.current + 1;
+        const data = await generateMockCollections(pageRef.current, 30)
+        setData(prevData => [...prevData, ...data]);
+        setHasMorePage(hasMorePage);  
     } finally {
         setIsLoading(false);
     }
@@ -295,12 +304,12 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
         if (isScrollingDown) {
           console.log("scrolling down");
           
-          if (currentOffset < 60) {
-            currentOpacity = 1 - (currentOffset / 60);
+          if (currentOffset < 50) {
+            currentOpacity = 1 - (currentOffset / 50);
             currentTranslateY = -(currentOffset / 2);
           } else {
             currentOpacity = 0;
-            currentTranslateY = -60;
+            currentTranslateY = -50;
           }
           Animated.parallel([
             Animated.timing(opacity, {
@@ -321,7 +330,7 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
           ]).start();          
           isScrollingDownRef.current = true;
         } else if (!isLoading){
-          if (currentOffset < 60) {
+          if (currentOffset < 50) {
             currentOpacity = 1;
             currentTranslateY = 0;
           } else {
@@ -336,7 +345,7 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
           if (!(currentOffset === previousOffset.current)) {
             console.log("scrolling up");
             Animated.timing(marginTopAnim, {
-              toValue: 60,
+              toValue: 50,
               duration: 5,
               useNativeDriver: false,
             }).start();
@@ -378,17 +387,15 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
       <View style={{ flexDirection: 'row', justifyContent: 'center', width: '100%', marginBottom: 16 }}>
         {firstItem && (
             <TouchableOpacity style={styles.card} onPress={() => getCollectionDetails(firstItem.id, creator_id)}>
-              <View style={{ position: 'absolute', top: 5, right: -15 }}>
-                <MenuProvider>
-                  <MenuBar options={menuOptions} />
-                </MenuProvider>
-              </View>
               <View>
                 <ImageBackground
-                    source={{ uri: item.image_url }}
+                    source={{ uri: firstItem.image_url }}
                     style={styles.imageBackground}
                     imageStyle={{ borderRadius: 10 }}
                   >
+                    <Image
+                      style={{height: cardHeight}}
+                    />
                   <BlurView intensity={80} style={styles.textContainer} tint="light">
                     <View>
                     <Text style={styles.title}>{firstItem.name}</Text>
@@ -397,21 +404,24 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
                   </BlurView>
                 </ImageBackground>
               </View>
+              <View style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'lightgray', borderBottomLeftRadius: 10, width: 30 }}>
+                <MenuProvider>
+                  <MenuBar options={menuOptions} />
+                </MenuProvider>
+              </View>
             </TouchableOpacity>
         )}
         {secondItem && (
           <TouchableOpacity style={styles.card} onPress={() => getCollectionDetails(secondItem.id, creator_id)}>
-            <View style={{ position: 'absolute', top: 5, right: -15 }}>
-            <MenuProvider>
-              <MenuBar options={menuOptions} />
-            </MenuProvider>
-            </View>
             <View>
               <ImageBackground
-                source={{ uri: item.image_url }}
+                source={{ uri: secondItem.image_url }}
                 style={styles.imageBackground}
                 imageStyle={{ borderRadius: 10 }}
               >
+                <Image
+                    style={{height: cardHeight}}
+                  />
                 <BlurView intensity={80} style={styles.textContainer} tint="light">
                   <View>
                   <Text style={styles.title}>{secondItem.name}</Text>
@@ -419,6 +429,11 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
                   </View>
                 </BlurView>
               </ImageBackground>
+            </View>
+            <View style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'lightgray', borderBottomLeftRadius: 10, width: 30 }}>
+              <MenuProvider>
+                <MenuBar options={menuOptions} />
+              </MenuProvider>
             </View>
           </TouchableOpacity>
         )}
@@ -429,7 +444,7 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
   return (
     <View style={styles.container}>
       <View style={{ flex: 1 }}>
-        <View style={{ marginTop: 40, flex: 1 }}>
+        <View style={{ marginTop: 20, flex: 1 }}>
           <Animated.View
             style={[
               styles.searchContainer,
@@ -449,7 +464,6 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
               onClearPress={() => {}}
               textInputStyle={[
                 styles.textInput,
-                !searchText ? { fontStyle: 'italic' } : {}
               ]}
             />
           </Animated.View>
@@ -524,14 +538,10 @@ const CollectionsList: React.FC<CollectionListPageProps> = ({creator_id}) => {
   );
 };
 
-let cardHeight = screenHeight * 0.3
-if (screenHeight > 800) {
-  cardHeight = screenHeight * 0.27
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 6
   },
   card: {
     display: 'flex',
@@ -542,18 +552,17 @@ const styles = StyleSheet.create({
     margin: 5,
     backgroundColor: '#ccc',
     borderColor: 'lightgrey',
-    borderWidth: 0.05,
+    borderWidth: 1,
     overflow: 'hidden',
   },
   title: {
-    textAlign: 'right',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 12,
     marginBottom: 5,
   },
   total: {
     marginBottom: 5,
-    textAlign: 'right',
+    fontSize: 11
   },
   footer: {
     paddingHorizontal: 10,
@@ -562,10 +571,8 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     elevation: 0,
     shadowOpacity: 0,
-    padding: 0,
     margin: 0,
-    paddingTop: 5,
-    fontSize: 16,
+    fontSize: 14,
   },
   backdrop: {
     position: 'absolute',
@@ -603,7 +610,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
     padding: 8,
     display: 'flex', 
-    alignItems: 'flex-end', 
     overflow: 'hidden'
   },
 
@@ -615,11 +621,10 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   searchBar: {
-    minHeight: 40,
-    maxHeight: 60,
+    minHeight: 30,
+    maxHeight: 36,
+    width: '95%'
   },
-
-    // Product image background
   imageBackground: {
     width: '100%',
     height: '100%',

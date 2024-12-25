@@ -16,10 +16,11 @@ interface HomeMainProps {
   header: string;
   creator_id: string;
   isCustomNavigation?: boolean;
-  backButtonFunction?: Function
+  isUnreadNotificationPresent: boolean;
+  backButtonFunction?: Function;
 }
 
-const HomeTopbar: React.FC<HomeMainProps> = ({ header, creator_id, backButtonFunction = () => {},  isCustomNavigation = false }) => {
+const HomeTopbar: React.FC<HomeMainProps> = ({ header, creator_id, backButtonFunction = () => {},  isCustomNavigation = false, isUnreadNotificationPresent = false }) => {
 
   type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
   const navigation = useNavigation<NavigationProps>();
@@ -57,13 +58,13 @@ const HomeTopbar: React.FC<HomeMainProps> = ({ header, creator_id, backButtonFun
       <View style={styles.headerIconsContainer}>
         <MaterialCommunityIcons 
           name="cart-plus" 
-          size={24}
+          size={22}
           style={{alignSelf: 'center', marginRight: 15}}
           onPress={() => navigateToAddProductsList(creator_id)}
         />        
         <MaterialCommunityIcons 
-            name="notification-clear-all" 
-            size={24}
+            name={isUnreadNotificationPresent ? "bell-ring-outline" : "bell-badge-outline"}
+            size={22}
             style={{alignSelf: 'center'}}
             onPress={() => navigateToNotifiation(creator_id)}
           />
@@ -80,12 +81,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 10,
     marginBottom: 15,
-    paddingLeft: 20,
-    paddingRight: 10,
+    paddingHorizontal: 10,
     height: 60
   },
   headerIconsContainer: {
-    marginRight: 13,
     display: 'flex',
     flexDirection: 'row'
   },
